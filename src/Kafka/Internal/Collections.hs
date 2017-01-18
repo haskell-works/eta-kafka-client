@@ -10,11 +10,11 @@ import Data.Map (Map)
 import qualified Data.Map as M
 
 data {-# CLASS "java.util.Map" #-} JMap k v = JMap (Object# (JMap k v))
-  deriving Class
+  deriving (Class, Show)
 
 data {-# CLASS "java.util.HashMap" #-} JHashMap k v
   = JHashMap (Object# (JHashMap k v))
-  deriving Class
+  deriving (Class, Show)
 
 type instance Inherits (JHashMap k v) = '[Object, JMap k v]
 
