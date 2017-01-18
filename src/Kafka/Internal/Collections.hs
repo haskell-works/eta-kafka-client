@@ -1,6 +1,8 @@
 {-# LANGUAGE MagicHash, FlexibleContexts, DataKinds, TypeFamilies #-}
 module Kafka.Internal.Collections
-where
+( JMap(..)
+, toJMap
+) where
 
 import Java
 import Control.Monad(forM_)
