@@ -3,15 +3,18 @@ module Kafka.Consumer
 (
   newBytesConsumer
 , closeConsumer
+, subscribeTo
 )where
 
 --
 import Java
+import qualified Java.Array as JA
 import Control.Monad(forM_)
 import Data.Map (Map)
 import qualified Data.Map as M
 import Kafka.Internal.Bindings
 import Kafka.Internal.Collections
+import Kafka.Types
 
 fixedProps :: Map JString JString
 fixedProps = M.fromList
@@ -24,3 +27,8 @@ newBytesConsumer :: Map JString JString -> Java a (KafkaConsumer JBytes JBytes)
 newBytesConsumer props =
   let bsProps = M.union props fixedProps
    in mkRawConsumer (toJMap bsProps)
+
+subscribeTo :: [TopicName] -> Java (KafkaConsumer k v) ()
+subscribeTo ts =
+  let rawTopics = JA.fromList $ (\(TopicName t) -> t) <$> ts
+   in rawTopics >>= rawSubscribe

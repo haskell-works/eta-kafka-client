@@ -16,3 +16,7 @@ data {-# CLASS "org.apache.kafka.clients.consumer.KafkaConsumer" #-} KafkaConsum
 foreign import java unsafe "@new" mkRawConsumer :: JMap JString JString -> Java a (KafkaConsumer k v)
 
 foreign import java unsafe "close" closeConsumer :: Java (KafkaConsumer k v) ()
+
+foreign import java unsafe "subscribe" rawSubscribe :: JStringArray -> Java (KafkaConsumer k v) ()
+
+foreign import java unsafe "unsubscribe" unsubscribe :: Java (KafkaConsumer k v) ()
