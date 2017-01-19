@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-if [ ! -d "~/eta" ]; then
-  cd ~/
+if [ ! -d "${HOME}/eta" ]; then
+  echo "Installing ETA"
+  cd ${HOME}
   git clone --recursive https://github.com/typelead/eta
   cd eta
   ./install.sh
 else
-  cd ~/eta
+  echo "Updating ETA"
+  cd ${HOME}/eta
   ./update.sh
 fi
