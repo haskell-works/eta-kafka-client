@@ -14,3 +14,5 @@ data {-# CLASS "org.apache.kafka.clients.consumer.KafkaConsumer" #-} KafkaConsum
   deriving Class
 
 foreign import java unsafe "@new" mkRawConsumer :: JMap JString JString -> Java a (KafkaConsumer k v)
+
+foreign import java unsafe "close" closeConsumer :: Java (KafkaConsumer k v) ()

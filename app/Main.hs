@@ -12,5 +12,6 @@ consumerConf = M.fromList [ ("bootstrap.servers", "localhost:9092") ]
 
 main :: IO ()
 main = do
-  cons <- java $ newConsumer consumerConf
+  cons <- java $ newBytesConsumer consumerConf
+  javaWith cons closeConsumer
   print "Ok."

@@ -1,6 +1,6 @@
 {-# LANGUAGE MagicHash, FlexibleContexts, DataKinds, TypeFamilies #-}
 module Kafka.Internal.Collections
-( JMap(..)
+( JMap(..), JBytes(..)
 , toJMap
 ) where
 
@@ -8,6 +8,8 @@ import Java
 import Control.Monad(forM_)
 import Data.Map (Map)
 import qualified Data.Map as M
+
+data {-# CLASS "java.lang.Byte[]" #-} JBytes = JBytes (Object# JBytes)
 
 data {-# CLASS "java.util.Map" #-} JMap k v = JMap (Object# (JMap k v))
   deriving (Class, Show)
