@@ -16,8 +16,20 @@ build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
 
+executable kafka-client-example
+  main-is:             Main.hs
+  -- other-modules:
+  -- other-extensions:
+  build-depends:       base >=4.8 && <4.9,
+                       containers,
+                       eta-kafka-client
+  hs-source-dirs:      app
+  default-language:    Haskell2010
+  maven-depends:       org.apache.kafka:kafka-clients:0.10.1.1
+  maven-repos:         http://packages.confluent.io/maven/
+
 library
-  -- exposed-modules:
+  exposed-modules:     Kafka.Consumer
   other-modules:       Kafka.Internal.Bindings
                      , Kafka.Internal.Collections
   -- other-extensions:
@@ -25,7 +37,5 @@ library
                        containers
   hs-source-dirs:      src
   default-language:    Haskell2010
-  maven-depends:       org.apache.avro:avro:1.8.1
-                     , org.apache.kafka:kafka-clients:0.10.1.1
-                     , io.confluent:kafka-avro-serializer:3.1.1
+  maven-depends:       org.apache.kafka:kafka-clients:0.10.1.1
   maven-repos:         http://packages.confluent.io/maven/

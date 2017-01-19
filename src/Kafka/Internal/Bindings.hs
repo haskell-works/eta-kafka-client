@@ -14,7 +14,3 @@ data {-# CLASS "org.apache.kafka.clients.consumer.KafkaConsumer" #-} KafkaConsum
   deriving Class
 
 foreign import java unsafe "@new" mkRawConsumer :: JMap JString JString -> Java a (KafkaConsumer k v)
-
--- convert to Map String String? Or Map Text Text?
-newConsumer :: Map JString JString -> Java a (KafkaConsumer k v)
-newConsumer props = mkRawConsumer (toJMap props)
