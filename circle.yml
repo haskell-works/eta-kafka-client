@@ -10,7 +10,7 @@ dependencies:
   cache_directories:
     - ~/.stack
     - ~/.local
-    - ~/.eta
+    - ~/eta
     - ~/.coursier
 
   pre:
