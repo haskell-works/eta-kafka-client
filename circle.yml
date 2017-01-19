@@ -12,7 +12,6 @@ dependencies:
     - ~/.local
     - ~/.eta
     - ~/.coursier
-    - ~/.ivy2
 
   pre:
     - mkdir -p ~/.local/bin
