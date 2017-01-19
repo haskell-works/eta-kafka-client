@@ -1,0 +1,33 @@
+machine:
+  services:
+    - docker
+  java:
+    version: oraclejdk8
+  environment:
+    PATH: ${HOME}/.local/bin:$PATH
+
+dependencies:
+  cache_directories:
+    - ~/.stack
+    - ~/.local
+    - ~/.eta
+    - ~/.coursier
+    - ~/.ivy2
+
+  pre:
+    - mkdir -p ~/.local/bin
+    - echo $PATH
+    - wget -qO- https://get.haskellstack.org/ | sh
+    - scripts/eta-install.sh
+
+  override:
+    - epm install --dependencies-only
+    - epm build
+
+test:
+  override:
+    - echo "No tests"
+
+  post:
+    # - find . -path "*/test-reports/*" -exec mv {} ${CIRCLE_TEST_REPORTS} \;
+    # - find . -path "*/coverage-report/*" -exec mv {} ${CIRCLE_TEST_REPORTS} \;
