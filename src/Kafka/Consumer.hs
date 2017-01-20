@@ -4,6 +4,7 @@ module Kafka.Consumer
   newBytesConsumer
 , closeConsumer
 , subscribeTo
+, commitSync, commitAsync
 )where
 
 --
@@ -26,6 +27,7 @@ fixedProps = M.fromList
 newBytesConsumer :: Map JString JString -> Java a (KafkaConsumer JBytes JBytes)
 newBytesConsumer props =
   let bsProps = M.union props fixedProps
+      aaa = newTopicPartition "Asd" 1
    in mkRawConsumer (toJMap bsProps)
 
 subscribeTo :: [TopicName] -> Java (KafkaConsumer k v) ()
