@@ -1,14 +1,23 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Kafka.Consumer
-(
-  newBytesConsumer
+( Timeout(..), TopicName(..)
+, newBytesConsumer
 , closeConsumer
 , subscribeTo
 , commitSync, commitAsync
+, ConsumerRecord(..)
+, poll
+, crTopic
+, crPartition
+, crKey
+, crValue
+, crOffset
+, crChecksum
 )where
 
 --
 import Java
+import Java.Collections
 import qualified Java.Array as JA
 import Control.Monad(forM_)
 import Data.Map (Map)
@@ -24,13 +33,15 @@ fixedProps = M.fromList
   ]
 
 -- convert to Map String String? Or Map Text Text?
-newBytesConsumer :: Map JString JString -> Java a (KafkaConsumer JBytes JBytes)
+newBytesConsumer :: Map JString JString -> Java a (KafkaConsumer JByteArray JByteArray)
 newBytesConsumer props =
   let bsProps = M.union props fixedProps
-      aaa = newTopicPartition "Asd" 1
    in mkRawConsumer (toJMap bsProps)
 
 subscribeTo :: [TopicName] -> Java (KafkaConsumer k v) ()
 subscribeTo ts =
-  let rawTopics = JA.fromList $ (\(TopicName t) -> t) <$> ts
-   in rawTopics >>= rawSubscribe
+  let rawTopics = toJList $ (\(TopicName t) -> t) <$> ts
+   in rawSubscribe rawTopics
+
+poll :: Timeout -> Java (KafkaConsumer k v) [ConsumerRecord k v]
+poll (Timeout t) = consume <$> (rawPoll t >- iterator)
