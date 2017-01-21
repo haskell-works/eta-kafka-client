@@ -20,6 +20,13 @@ main = do
   cons <- java $ newBytesConsumer consumerConf
   _    <- javaWith cons $ subscribeTo [TopicName "attacks"]
   as   <- javaWith cons $ poll (Timeout 1000)
-  print (show as)
+  print . show $ rmFromRecord <$> as
   javaWith cons closeConsumer
   print "Ok."
+
+data RecordMetatada = RecordMetatada TopicName PartitionId Offset Checksum
+  deriving (Show)
+
+rmFromRecord :: ConsumerRecord k v -> RecordMetatada
+rmFromRecord (ConsumerRecord t p o c _ _) =
+  RecordMetatada t p o c

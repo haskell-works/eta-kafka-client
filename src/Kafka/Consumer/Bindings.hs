@@ -1,5 +1,5 @@
 {-# LANGUAGE MagicHash, FlexibleContexts, DataKinds, TypeFamilies #-}
-module Kafka.Internal.Bindings
+module Kafka.Consumer.Bindings
 where
 
 import Java
@@ -19,36 +19,37 @@ foreign import java unsafe "@new" newTopicPartition :: JString -> Int -> JTopicP
 foreign import java unsafe "topic" tpTopic :: JTopicPartition -> JString
 foreign import java unsafe "partition" tpPartition :: JTopicPartition -> Int
 
--- ConsumerRecords
+-- JConsumerRecords
 
-data {-# CLASS "org.apache.kafka.clients.consumer.ConsumerRecords" #-} ConsumerRecords k v =
-  ConsumerRecords (Object# (ConsumerRecords k v))
+data {-# CLASS "org.apache.kafka.clients.consumer.ConsumerRecords" #-} JConsumerRecords k v =
+  JConsumerRecords (Object# (JConsumerRecords k v))
   deriving (Class, Show)
 
-type instance Inherits (ConsumerRecords k v) = '[Iterable (ConsumerRecord k v)]
+type instance Inherits (JConsumerRecords k v) = '[Iterable (JConsumerRecord k v)]
 
--- ConsumerRecord
-data {-# CLASS "org.apache.kafka.clients.consumer.ConsumerRecord" #-} ConsumerRecord k v =
-  ConsumerRecord (Object# (ConsumerRecord k v))
+-- JConsumerRecord
+data {-# CLASS "org.apache.kafka.clients.consumer.ConsumerRecord" #-} JConsumerRecord k v =
+  JConsumerRecord (Object# (JConsumerRecord k v))
   deriving (Class, Show)
 
-foreign import java unsafe "topic" crTopic :: ConsumerRecord k v -> JString
-foreign import java unsafe "partition" crPartition :: ConsumerRecord k v -> Int
-foreign import java unsafe "key" crKey :: (Extends k Object) => ConsumerRecord k v -> Maybe k
-foreign import java unsafe "value" crValue :: (Extends v Object) => ConsumerRecord k v -> Maybe v
-foreign import java unsafe "offset" crOffset :: ConsumerRecord k v -> Int64
-foreign import java unsafe "checksum" crChecksum :: ConsumerRecord k v -> Int64
+foreign import java unsafe "topic" crTopic' :: JConsumerRecord k v -> JString
+foreign import java unsafe "partition" crPartition' :: JConsumerRecord k v -> Int
+foreign import java unsafe "key" crKey' :: (Extends k Object) => JConsumerRecord k v -> Maybe k
+foreign import java unsafe "value" crValue' :: (Extends v Object) => JConsumerRecord k v -> Maybe v
+foreign import java unsafe "offset" crOffset' :: JConsumerRecord k v -> Int64
+foreign import java unsafe "checksum" crChecksum' :: JConsumerRecord k v -> Int64
 
 -- Consumer
 data {-# CLASS "org.apache.kafka.clients.consumer.KafkaConsumer" #-} KafkaConsumer k v =
   KafkaConsumer (Object# (KafkaConsumer k v))
   deriving Class
 
+
 foreign import java unsafe "@new" mkRawConsumer :: JMap JString JString -> Java a (KafkaConsumer k v)
 foreign import java unsafe "close" closeConsumer :: Java (KafkaConsumer k v) ()
 foreign import java unsafe "subscribe" rawSubscribe :: (Extends b (Collection JString)) => b -> Java (KafkaConsumer k v) ()
-foreign import java unsafe "unsubscribe" unsubscribe :: Java (KafkaConsumer k v) ()
+foreign import java unsafe "unsubscribe" unsubscribe2 :: Java (KafkaConsumer k v) ()
 foreign import java unsafe "commitSync" commitSync :: Java (KafkaConsumer k v) ()
 foreign import java unsafe "commitAsync" commitAsync :: Java (KafkaConsumer k v) ()
 
-foreign import java unsafe "poll" rawPoll :: Int64 -> Java (KafkaConsumer k v) (ConsumerRecords k v)
+foreign import java unsafe "poll" rawPoll :: Int64 -> Java (KafkaConsumer k v) (JConsumerRecords k v)
