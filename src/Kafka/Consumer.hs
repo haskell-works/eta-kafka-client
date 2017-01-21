@@ -6,7 +6,7 @@ module Kafka.Consumer
 , subscribeTo
 , commitSync, commitAsync
 , poll
-)where
+) where
 
 --
 import Control.Monad(forM_)

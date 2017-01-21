@@ -31,9 +31,12 @@ executable kafka-client-example
 
 library
   exposed-modules:     Kafka.Consumer
+                     , Kafka.Producer
 
   other-modules:       Kafka.Consumer.Types
                      , Kafka.Consumer.Bindings
+                     , Kafka.Producer.Types
+                     , Kafka.Producer.Bindings
                      , Kafka.Internal.Collections
                      , Kafka.Internal.JPattern
   -- other-extensions:
