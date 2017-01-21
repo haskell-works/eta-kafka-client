@@ -28,7 +28,7 @@ fixedProps = M.fromList
 -- convert to Map String String? Or Map Text Text?
 newBytesConsumer :: Map JString JString -> Java a (KafkaConsumer JByteArray JByteArray)
 newBytesConsumer props =
-  let bsProps = M.union props fixedProps
+  let bsProps = M.union fixedProps props
    in mkRawConsumer (toJMap bsProps)
 
 subscribeTo :: [TopicName] -> Java (KafkaConsumer JByteArray JByteArray) ()
