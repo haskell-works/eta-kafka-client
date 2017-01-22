@@ -26,14 +26,14 @@ targetTopic = TopicName "results-0"
 fv :: JString
 fv = "M.valid"
 
+-- Refactor this to only run java monad once
 main :: IO ()
 main = do
   cons <- java $ newBytesConsumer consumerConf
   prod <- java $ newProducer producerConf
   _    <- javaWith cons $ subscribeTo [TopicName "attacks"]
   crs  <- javaWith cons $ poll (Timeout 1000)
-  let pr = toProducerRecord (head crs)
-  _    <- javaWith prod $ send pr
+  java $ forM_ (toProducerRecord <$> crs) (prod <.> send)
   print . show $ length crs
   javaWith cons closeConsumer
   javaWith prod closeProducer
