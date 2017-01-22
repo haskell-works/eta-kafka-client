@@ -22,7 +22,8 @@ producerConf = M.fromList
   [ ("bootstrap.servers", "localhost:9092")
   ]
 
-targetTopic = TopicName "results-0"
+inputTopic  = TopicName "kafka-example-input"
+targetTopic = TopicName "kafka-example-output"
 fv :: JString
 fv = "M.valid"
 
@@ -31,7 +32,7 @@ main :: IO ()
 main = do
   cons <- java $ newBytesConsumer consumerConf
   prod <- java $ newProducer producerConf
-  _    <- javaWith cons $ subscribeTo [TopicName "attacks"]
+  _    <- javaWith cons $ subscribeTo [inputTopic]
   crs  <- javaWith cons $ poll (Timeout 1000)
   forM_ (toProducerRecord <$> crs) (javaWith prod . send)
   print . show $ length crs
