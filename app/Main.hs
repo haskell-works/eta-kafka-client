@@ -33,7 +33,7 @@ main = do
   prod <- java $ newProducer producerConf
   _    <- javaWith cons $ subscribeTo [TopicName "attacks"]
   crs  <- javaWith cons $ poll (Timeout 1000)
-  java $ forM_ (toProducerRecord <$> crs) (prod <.> send)
+  forM_ (toProducerRecord <$> crs) (javaWith prod . send)
   print . show $ length crs
   javaWith cons closeConsumer
   javaWith prod closeProducer
