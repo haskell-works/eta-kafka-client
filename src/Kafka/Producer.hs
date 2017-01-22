@@ -6,8 +6,6 @@ module Kafka.Producer
 , send
 , closeProducer
 , mkJProducerRecord
-, newJProducerRecord2
---, newJProducerRecord
 ) where
 
 import Java

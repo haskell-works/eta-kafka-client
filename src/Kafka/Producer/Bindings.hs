@@ -30,9 +30,6 @@ data {-# CLASS "org.apache.kafka.clients.producer.ProducerRecord" #-} JProducerR
 foreign import java unsafe "@new" newJProducerRecord ::
  (Extends k Object, Extends v Object) => JString -> Maybe JInteger -> Maybe JLong -> Maybe k -> Maybe v -> JProducerRecord k v
 
-foreign import java unsafe "@new" newJProducerRecord2 ::
-  (Extends k Object, Extends v Object) => JString -> JInteger -> JLong -> k -> v -> JProducerRecord k v
-
 -- Producer
 data {-# CLASS "org.apache.kafka.clients.producer.KafkaProducer" #-} KafkaProducer k v =
   KafkaProducer (Object# (KafkaProducer k v))
