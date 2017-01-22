@@ -20,7 +20,6 @@ foreign import java unsafe "topic" tpTopic :: JTopicPartition -> JString
 foreign import java unsafe "partition" tpPartition :: JTopicPartition -> Int
 
 -- JConsumerRecords
-
 data {-# CLASS "org.apache.kafka.clients.consumer.ConsumerRecords" #-} JConsumerRecords k v =
   JConsumerRecords (Object# (JConsumerRecords k v))
   deriving (Class, Show)

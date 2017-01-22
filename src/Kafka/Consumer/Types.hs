@@ -5,10 +5,9 @@ where
 import Java
 import Data.Map (Map)
 import Data.Bifunctor
+import Kafka.Types
 
 --
-newtype TopicName   = TopicName JString deriving (Show, Eq, Ord)
-newtype PartitionId = PartitionId Int deriving (Show, Eq, Ord, Num)
 newtype Offset      = Offset Int64 deriving (Show, Eq, Ord, Num)
 newtype Checksum    = Checksum Int64 deriving (Show, Eq, Ord, Num)
 newtype Timeout     = Timeout Int64 deriving (Show, Eq, Ord, Num)

@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Kafka.Consumer
-( module Kafka.Consumer.Types
+( module Kafka.Types
+, module Kafka.Consumer.Types
 , newBytesConsumer
 , closeConsumer
 , subscribeTo
@@ -13,6 +14,7 @@ import Control.Monad(forM_)
 import Data.Map (Map)
 import Java
 import Java.Collections
+import Kafka.Types
 import Kafka.Consumer.Bindings
 import Kafka.Consumer.Types
 import Kafka.Internal.Collections
