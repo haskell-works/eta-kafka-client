@@ -37,6 +37,7 @@ library
                      , Kafka.Consumer.ConsumerProperties
                      , Kafka.Consumer.Bindings
                      , Kafka.Producer.Types
+                     , Kafka.Producer.ProducerProperties
                      , Kafka.Producer.Bindings
                      , Kafka.Internal.Collections
                      , Kafka.Internal.JPattern

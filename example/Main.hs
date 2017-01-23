@@ -11,20 +11,16 @@ import Kafka.Consumer
 import Kafka.Producer
 
 consumerConf :: ConsumerProperties
-consumerConf = brokersList [BrokerAddress "localhost:9092"]
+consumerConf = consumerBrokersList [BrokerAddress "localhost:9092"]
             <> groupId (ConsumerGroupId "test-group-1")
             <> offsetReset Earliest
             <> noAutoCommit
 
-producerConf :: Map JString JString
-producerConf = M.fromList
-  [ ("bootstrap.servers", "localhost:9092")
-  ]
+producerConf :: ProducerProperties
+producerConf = producerBrokersList [BrokerAddress "localhost:9092"]
 
 inputTopic  = TopicName "kafka-example-input"
 targetTopic = TopicName "kafka-example-output"
-fv :: JString
-fv = "M.valid"
 
 -- Refactor this to only run java monad once
 main :: IO ()

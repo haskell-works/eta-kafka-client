@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Kafka.Producer
 ( module Kafka.Types
+, module Kafka.Producer.ProducerProperties
 , module Kafka.Producer.Types
 , newProducer
 , send
@@ -8,25 +9,28 @@ module Kafka.Producer
 , mkJProducerRecord
 ) where
 
+import Data.Bifunctor
+import Data.Map (Map)
+import Data.Monoid
 import Java
 import Java.Collections
 import Kafka.Types
 import Kafka.Producer.Bindings
 import Kafka.Producer.Types
-import Data.Map (Map)
+import Kafka.Producer.ProducerProperties
 import qualified Data.Map as M
 import Kafka.Internal.Collections
 
-fixedProps :: Map JString JString
-fixedProps = M.fromList
+fixedProps :: ProducerProperties
+fixedProps = producerProps $ M.fromList
   [ ("key.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer")
   , ("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer")
   ]
 
-newProducer :: Map JString JString -> Java a (KafkaProducer JByteArray JByteArray)
+newProducer :: ProducerProperties -> Java a (KafkaProducer JByteArray JByteArray)
 newProducer props =
-  let bsProps = M.union fixedProps props
-   in mkRawProducer (toJMap bsProps)
+  let bsProps = fixedProps <> props
+   in mkRawProducer (mkProducerProps bsProps)
 
 send :: ProducerRecord JByteArray JByteArray -> Java (KafkaProducer JByteArray JByteArray) (JFuture RecordMetadata)
 send = rawSend . mkJProducerRecord
@@ -39,3 +43,7 @@ mkJProducerRecord (ProducerRecord t p k v) =
 
 closeProducer :: Java (KafkaProducer k v) ()
 closeProducer = flushProducer >> destroyProducer
+
+mkProducerProps :: ProducerProperties -> JMap JString JString
+mkProducerProps (ProducerProperties m) =
+  toJMap . M.fromList $ bimap toJString toJString <$> M.toList m

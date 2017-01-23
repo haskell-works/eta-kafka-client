@@ -23,8 +23,8 @@ instance Monoid ConsumerProperties where
   mempty = ConsumerProperties M.empty
   mappend (ConsumerProperties m1) (ConsumerProperties m2) = ConsumerProperties (M.union m1 m2)
 
-brokersList :: [BrokerAddress] -> ConsumerProperties
-brokersList bs =
+consumerBrokersList :: [BrokerAddress] -> ConsumerProperties
+consumerBrokersList bs =
   let bs' = L.intercalate "," ((\(BrokerAddress x) -> x) <$> bs)
    in ConsumerProperties $ M.fromList [("bootstrap.servers", bs')]
 
