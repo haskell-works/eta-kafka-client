@@ -3,19 +3,18 @@ module Main where
 
 import Java
 import qualified Java.Array as JA
+import Data.Monoid
 import Control.Monad(forM_)
 import Data.Map (Map)
 import qualified Data.Map as M
 import Kafka.Consumer
 import Kafka.Producer
 
-consumerConf :: Map JString JString
-consumerConf = M.fromList
-  [ ("bootstrap.servers", "localhost:9092")
-  , ("group.id", "test-group-1")
-  , ("auto.offset.reset", "earliest")
-  , ("enable.auto.commit", "false")
-  ]
+consumerConf :: ConsumerProperties
+consumerConf = brokersList [BrokerAddress "localhost:9092"]
+            <> groupId (ConsumerGroupId "test-group-1")
+            <> offsetReset Earliest
+            <> noAutoCommit
 
 producerConf :: Map JString JString
 producerConf = M.fromList
@@ -30,7 +29,7 @@ fv = "M.valid"
 -- Refactor this to only run java monad once
 main :: IO ()
 main = do
-  cons <- java $ newBytesConsumer consumerConf
+  cons <- java $ newConsumer consumerConf
   prod <- java $ newProducer producerConf
   _    <- javaWith cons $ subscribeTo [inputTopic]
   crs  <- javaWith cons $ poll (Timeout 1000)

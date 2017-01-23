@@ -34,6 +34,7 @@ library
                      , Kafka.Producer
 
   other-modules:       Kafka.Consumer.Types
+                     , Kafka.Consumer.ConsumerProperties
                      , Kafka.Consumer.Bindings
                      , Kafka.Producer.Types
                      , Kafka.Producer.Bindings

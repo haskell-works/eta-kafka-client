@@ -35,7 +35,7 @@ mkJProducerRecord :: (Class k, Class v) => ProducerRecord k v -> JProducerRecord
 mkJProducerRecord (ProducerRecord t p k v) =
   let TopicName t' = t
       p' = (\(PartitionId x) -> x) <$> p
-   in newJProducerRecord t' (intToJInteger <$> p') Nothing k v
+   in newJProducerRecord (toJString t') (intToJInteger <$> p') Nothing k v
 
 closeProducer :: Java (KafkaProducer k v) ()
 closeProducer = flushProducer >> destroyProducer

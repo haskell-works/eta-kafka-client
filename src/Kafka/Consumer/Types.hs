@@ -6,6 +6,11 @@ import Java
 import Data.Map (Map)
 import Data.Bifunctor
 import Kafka.Types
+import Kafka.Consumer.ConsumerProperties
+import qualified Data.Map as M
+import qualified Data.List as L
+import Data.Monoid
+
 
 --
 newtype Offset      = Offset Int64 deriving (Show, Eq, Ord, Num)
