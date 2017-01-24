@@ -21,6 +21,7 @@ executable kafka-client-example
   -- other-modules:
   -- other-extensions:
   build-depends:       base >=4.8 && <4.9,
+                       ghc-prim,
                        bifunctors,
                        containers,
                        eta-kafka-client

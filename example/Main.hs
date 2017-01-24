@@ -1,12 +1,14 @@
-{-# LANGUAGE MagicHash, FlexibleContexts, DataKinds, TypeFamilies, OverloadedStrings, ScopedTypeVariables #-}
+{-# LANGUAGE MagicHash, BangPatterns, FlexibleContexts, DataKinds, TypeFamilies, OverloadedStrings, ScopedTypeVariables #-}
 module Main where
 
 import Java
-import qualified Java.Array as JA
-import Data.Monoid
+import Java.String
+import GHC.Base
+
 import Control.Monad(forM_)
-import Data.Map (Map)
-import qualified Data.Map as M
+import Data.Monoid
+import Data.Maybe (maybeToList)
+
 import Kafka.Consumer
 import Kafka.Producer
 
@@ -19,28 +21,41 @@ consumerConf = consumerBrokersList [BrokerAddress "localhost:9092"]
 producerConf :: ProducerProperties
 producerConf = producerBrokersList [BrokerAddress "localhost:9092"]
 
-inputTopic  = TopicName "kafka-example-input"
-targetTopic = TopicName "kafka-example-output"
+testTopic  = TopicName "kafka-example-topic"
 
--- Refactor this to only run java monad once
 main :: IO ()
 main = do
-  cons <- java $ newConsumer consumerConf
-  prod <- java $ newProducer producerConf
-  _    <- javaWith cons $ subscribeTo [inputTopic]
-  crs  <- javaWith cons $ poll (Timeout 1000)
-  forM_ (toProducerRecord <$> crs) (javaWith prod . send)
-  print . show $ length crs
-  javaWith cons closeConsumer
-  javaWith prod closeProducer
+  print "Running producer..."
+  runProducer testTopic ["one", "two", "three"]
+
+  print "Running consumer..."
+  received <- runConsumer testTopic
+
+  forM_ received (print . bytesToJString)
   print "Ok."
 
-data RecordMetatada = RecordMetatada TopicName PartitionId Offset Checksum
-  deriving (Show)
+runProducer :: TopicName -> [String] -> IO ()
+runProducer t msgs = java $ do
+  prod <- newProducer producerConf
+  let items = mkProdRecord t <$> msgs
+  forM_ items (\x -> prod <.> send x)
+  prod <.> closeProducer
+  where
+    mkProdRecord t v =
+      let bytes = stringBytes v
+       in ProducerRecord t Nothing (Just bytes) (Just bytes)
 
-rmFromRecord :: ConsumerRecord k v -> RecordMetatada
-rmFromRecord (ConsumerRecord t p o c _ _) =
-  RecordMetatada t p o c
 
-toProducerRecord :: ConsumerRecord (Maybe k) (Maybe v) -> ProducerRecord k v
-toProducerRecord cr = ProducerRecord targetTopic (Just $ crPartition cr) (crKey cr) (crValue cr)
+runConsumer :: TopicName -> IO [JByteArray]
+runConsumer t = java $ do
+  cons <- newConsumer consumerConf
+  cons <.> subscribeTo [t]
+  msgs <- cons <.> poll (Timeout 1000)
+  return $ msgs >>= maybeToList . crValue
+
+-- helpers
+stringBytes :: String -> JByteArray
+stringBytes s = JByteArray (getBytesUtf8# js)
+  where !(JS# js) = toJString s
+
+foreign import java unsafe "@new" bytesToJString :: JByteArray -> JString

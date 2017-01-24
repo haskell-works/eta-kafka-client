@@ -5,23 +5,28 @@
 An example can be found in the [example](example/Main.hs) project.
 
 ### Running the example
-Running the example requires Kafka/Zookeeper to be available at `localhost`.  
+Running the example requires Kafka to be available at `localhost`.  
 
 #### Run Kafka inside `docker-compose`
+If you already have Kafka accessible at `localhost:9092` skip this section.
+
 ```
 $ export DOCKER_IP=your_ip_address
 $ docker-compose up
 ```
 
-#### Add some data into the input topic
+**Note** `DOCKER_IP` should be a real IP address of your machine, not `127.0.0.1`.
+The following script can be used as a helper (MacOS):
 ```
-$ docker exec -it $(docker ps -aqf "ancestor=confluentinc/cp-kafka") bash
-$ kafka-console-producer --broker-list localhost:9092 zookeeper --topic kafka-example-input
+export DOCKER_IP=$(ifconfig | grep -Eo 'inet (addr:)?([0-9]*\.){3}[0-9]*' | grep -Eo '([0-9]*\.){3}[0-9]*' | grep -v '127.0.0.1' | head -n 1)
 ```
-Add some line-by-line messages and exit the producer (`Ctrl+C`)</br>
-Exit the container (`Ctrl+D`)
 
 #### Execute the example
 ```
 $ epm run
+"Running producer..."
+"Running consumer..."
+"one"
+"two"
+"three"
 ```
