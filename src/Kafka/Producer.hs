@@ -1,25 +1,27 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Kafka.Producer
-( module Kafka.Types
-, module Kafka.Producer.ProducerProperties
-, module Kafka.Producer.Types
+( module X
 , newProducer
 , send
 , closeProducer
 , mkJProducerRecord
 ) where
 
-import Data.Bifunctor
-import Data.Map (Map)
-import Data.Monoid
 import Java
 import Java.Collections
-import Kafka.Types
-import Kafka.Producer.Bindings
-import Kafka.Producer.Types
-import Kafka.Producer.ProducerProperties
+
+import Data.Bifunctor
+import Data.Map (Map)
 import qualified Data.Map as M
+import Data.Monoid
+
 import Kafka.Internal.Collections
+import Kafka.Producer.Bindings
+
+import Kafka.Types as X
+import Kafka.Producer.Types as X
+import Kafka.Producer.ProducerProperties as X
+
 
 fixedProps :: ProducerProperties
 fixedProps = producerProps $ M.fromList

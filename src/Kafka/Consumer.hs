@@ -1,8 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Kafka.Consumer
-( module Kafka.Types
-, module Kafka.Consumer.ConsumerProperties
-, module Kafka.Consumer.Types
+( module X
 , newConsumer
 , closeConsumer
 , subscribeTo
@@ -11,20 +9,23 @@ module Kafka.Consumer
 ) where
 
 --
+import Java
+import Java.Collections
+
 import Control.Monad(forM_)
 import Data.Bifunctor
 import Data.Map (Map)
-import Data.Monoid
-import Java
-import Java.Collections
-import Kafka.Types
-import Kafka.Consumer.Bindings
-import Kafka.Consumer.Types
-import Kafka.Consumer.ConsumerProperties
-import Kafka.Internal.Collections
 import qualified Data.Map as M
-import qualified Java.Array as JA
+import Data.Monoid
 import Data.String
+
+import Kafka.Consumer.Bindings
+import Kafka.Internal.Collections
+
+import Kafka.Types as X
+import Kafka.Consumer.Types as X
+import Kafka.Consumer.ConsumerProperties as X
+
 
 fixedProps :: ConsumerProperties
 fixedProps = consumerProps $ M.fromList
