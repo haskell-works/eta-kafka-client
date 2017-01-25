@@ -3,7 +3,7 @@
 
 name:                eta-kafka-client
 version:             0.5.0
-synopsis:            Kafka bindings for ETA
+synopsis:            Eta bindings to Kafka
 -- description:
 homepage:            http://github.com/haskell-works/eta-kafka-client
 license:             BSD3
@@ -15,6 +15,18 @@ category:            Database, Eta, Experimental
 build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
+description:         Kafka bingings for Eta (http://eta-lang.org/)
+  .
+  Features include:
+  .
+  * Consumer groups: auto-rebalancing consumers
+  .
+  * Keyed and keyless messages producing/consuming
+
+
+source-repository head
+  type:     git
+  location: git@github.com:haskell-works/eta-kafka-client.git
 
 executable kafka-client-example
   main-is:             Main.hs
