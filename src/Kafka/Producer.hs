@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Kafka.Producer
 ( module X
+, KafkaProducer, JFuture, JRecordMetadata
 , newProducer
 , send
 , closeProducer
@@ -34,7 +35,7 @@ newProducer props =
   let bsProps = fixedProps <> props
    in mkRawProducer (mkProducerProps bsProps)
 
-send :: ProducerRecord JByteArray JByteArray -> Java (KafkaProducer JByteArray JByteArray) (JFuture RecordMetadata)
+send :: ProducerRecord JByteArray JByteArray -> Java (KafkaProducer JByteArray JByteArray) (JFuture JRecordMetadata)
 send = rawSend . mkJProducerRecord
 
 mkJProducerRecord :: (Class k, Class v) => ProducerRecord k v -> JProducerRecord k v
