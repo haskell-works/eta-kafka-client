@@ -34,18 +34,19 @@ fixedProps = consumerProps $ M.fromList
   , ("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer")
   ]
 
--- convert to Map String String? Or Map Text Text?
-newConsumer :: ConsumerProperties -> Java a (KafkaConsumer JByteArray JByteArray)
+-- | Creates a new Kafka consumer
+newConsumer :: ConsumerProperties
+            -> Java a (KafkaConsumer JByteArray JByteArray)
 newConsumer props =
   let bsProps = fixedProps <> props
    in mkRawConsumer (mkConsumerProps bsProps)
 
+-- | Subscribes an existing kafka consumer to the specified topics
 subscribeTo :: [TopicName] -> Java (KafkaConsumer JByteArray JByteArray) ()
 subscribeTo ts =
   let rawTopics = toJList $ (\(TopicName t) -> (toJString t)) <$> ts
    in rawSubscribe rawTopics
 
---poll :: Timeout -> Java (KafkaConsumer JByteArray JByteArray) [JConsumerRecord JByteArray JByteArray]
 poll :: Timeout -> Java (KafkaConsumer JByteArray JByteArray) [ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)]
 poll (Timeout t) = do
   res <- consume <$> (rawPoll t >- iterator)

@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                eta-kafka-client
-version:             1.0.0
+version:             0.5.0
 synopsis:            Kafka bindings for ETA
 -- description:
 homepage:            http://github.com/haskell-works/eta-kafka-client
@@ -11,7 +11,7 @@ license-file:        LICENSE
 author:              Alexey Raga
 maintainer:          alexey.raga@gmail.com
 -- copyright:
-category:            Data
+category:            Database, Eta, Experimental
 build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
