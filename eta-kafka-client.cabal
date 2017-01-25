@@ -33,18 +33,20 @@ executable kafka-client-example
 library
   exposed-modules:     Kafka.Consumer
                      , Kafka.Producer
-
-  other-modules:       Kafka.Consumer.Types
+                     , Kafka.Types
+                     , Kafka.Consumer.Types
                      , Kafka.Consumer.ConsumerProperties
-                     , Kafka.Consumer.Bindings
                      , Kafka.Producer.Types
                      , Kafka.Producer.ProducerProperties
+
+  other-modules:       Kafka.Consumer.Bindings
                      , Kafka.Producer.Bindings
                      , Kafka.Internal.Collections
                      , Kafka.Internal.JPattern
   -- other-extensions:
   build-depends:       base >=4.8 && <4.9,
                        bifunctors,
+                       bytestring,
                        containers
   hs-source-dirs:      src
   default-language:    Haskell2010

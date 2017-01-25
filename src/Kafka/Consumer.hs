@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Kafka.Consumer
 ( module X
+, KafkaConsumer
 , newConsumer
 , closeConsumer
 , subscribeTo
