@@ -3,18 +3,10 @@ module Kafka.Producer.Bindings
 where
 
 import Java
-import Java.Collections
+import qualified Java.Collections as J
 import Control.Monad(forM_)
 import Data.Map (Map)
 import qualified Data.Map as M
-
-import Kafka.Internal.Collections
-
-data {-# CLASS "java.lang.Integer" #-} JInteger = JInteger (Object# JInteger)
-data {-# CLASS "java.lang.Long" #-} JLong = JLong (Object# JLong)
-
-foreign import java "@new" intToJInteger :: Int -> JInteger
-foreign import java "@new" int64ToJLong :: Int64 -> JLong
 
 data {-# CLASS "java.util.concurrent.Future" #-} JFuture a = JFuture (Object# (JFuture a))
   deriving (Class)
@@ -35,11 +27,11 @@ foreign import java unsafe "@new" newJProducerRecord ::
  (Extends k Object, Extends v Object) => JString -> Maybe JInteger -> Maybe JLong -> Maybe k -> Maybe v -> JProducerRecord k v
 
 -- Producer
-data {-# CLASS "org.apache.kafka.clients.producer.KafkaProducer" #-} KafkaProducer k v =
-  KafkaProducer (Object# (KafkaProducer k v))
+data {-# CLASS "org.apache.kafka.clients.producer.KafkaProducer" #-} JKafkaProducer k v =
+  JKafkaProducer (Object# (JKafkaProducer k v))
   deriving Class
 
-foreign import java unsafe "@new" mkRawProducer :: JMap JString JString -> Java a (KafkaProducer k v)
-foreign import java unsafe "close" destroyProducer :: Java (KafkaProducer k v) ()
-foreign import java unsafe "flush" flushProducer :: Java (KafkaProducer k v) ()
-foreign import java unsafe "send" rawSend :: JProducerRecord k v -> Java (KafkaProducer k v) (JFuture JRecordMetadata)
+foreign import java unsafe "@new" mkRawProducer :: Properties -> Java a (JKafkaProducer k v)
+foreign import java unsafe "close" destroyProducer :: Java (JKafkaProducer k v) ()
+foreign import java unsafe "flush" rawflushProducer :: Java (JKafkaProducer k v) ()
+foreign import java unsafe "send" rawSend ::  JProducerRecord k v -> Java (JKafkaProducer k v) (JFuture JRecordMetadata)

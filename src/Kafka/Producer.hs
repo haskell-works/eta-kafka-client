@@ -9,20 +9,20 @@ module Kafka.Producer
 ) where
 
 import Java
-import Java.Collections
+import qualified Java.Collections as J
 
 import Data.Bifunctor
 import Data.Map (Map)
 import qualified Data.Map as M
 import Data.Monoid
 
-import Kafka.Internal.Collections
 import Kafka.Producer.Bindings
 
 import Kafka.Types as X
 import Kafka.Producer.Types as X
 import Kafka.Producer.ProducerProperties as X
 
+data KafkaProducer = KafkaProducer (JKafkaProducer JByteArray JByteArray)
 
 fixedProps :: ProducerProperties
 fixedProps = producerProps $ M.fromList
@@ -30,23 +30,25 @@ fixedProps = producerProps $ M.fromList
   , ("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer")
   ]
 
-newProducer :: ProducerProperties -> Java a (KafkaProducer JByteArray JByteArray)
+newProducer :: ProducerProperties -> IO KafkaProducer
 newProducer props =
   let bsProps = fixedProps <> props
-   in mkRawProducer (mkProducerProps bsProps)
+   in java $ KafkaProducer <$> mkRawProducer (mkProducerProps bsProps)
 
-send :: ProducerRecord JByteArray JByteArray -> Java (KafkaProducer JByteArray JByteArray) (JFuture JRecordMetadata)
-send = rawSend . mkJProducerRecord
+send :: KafkaProducer -> ProducerRecord JByteArray JByteArray -> IO (JFuture JRecordMetadata)
+send (KafkaProducer kp) msg = java $ kp <.> rawSend (mkJProducerRecord msg)
 
 mkJProducerRecord :: (Class k, Class v) => ProducerRecord k v -> JProducerRecord k v
 mkJProducerRecord (ProducerRecord t p k v) =
   let TopicName t' = t
       p' = (\(PartitionId x) -> x) <$> p
-   in newJProducerRecord (toJString t') (intToJInteger <$> p') Nothing k v
+   in newJProducerRecord (toJString t') (toJava <$> p') Nothing k v
 
-closeProducer :: Java (KafkaProducer k v) ()
-closeProducer = flushProducer >> destroyProducer
+flushProducer :: KafkaProducer -> IO ()
+flushProducer (KafkaProducer kp) = java $ kp <.> rawflushProducer
 
-mkProducerProps :: ProducerProperties -> JMap JString JString
-mkProducerProps (ProducerProperties m) =
-  toJMap . M.fromList $ bimap toJString toJString <$> M.toList m
+closeProducer :: KafkaProducer -> IO ()
+closeProducer p@(KafkaProducer kp) = flushProducer p >> java (kp <.> destroyProducer)
+
+mkProducerProps :: ProducerProperties -> Properties
+mkProducerProps (ProducerProperties m) = toJava $ M.toList m

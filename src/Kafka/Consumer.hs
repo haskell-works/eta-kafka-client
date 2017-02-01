@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, ScopedTypeVariables #-}
 module Kafka.Consumer
 ( module X
 , KafkaConsumer
@@ -6,12 +6,12 @@ module Kafka.Consumer
 , closeConsumer
 , subscribeTo
 , commitSync, commitAsync
-, poll
+, pollConsumer
 ) where
 
 --
 import Java
-import Java.Collections
+import qualified Java.Collections as J
 
 import Control.Monad(forM_)
 import Data.Bifunctor
@@ -21,12 +21,12 @@ import Data.Monoid
 import Data.String
 
 import Kafka.Consumer.Bindings
-import Kafka.Internal.Collections
 
 import Kafka.Types as X
 import Kafka.Consumer.Types as X
 import Kafka.Consumer.ConsumerProperties as X
 
+data KafkaConsumer = KafkaConsumer (JKafkaConsumer JByteArray JByteArray)
 
 fixedProps :: ConsumerProperties
 fixedProps = consumerProps $ M.fromList
@@ -36,21 +36,26 @@ fixedProps = consumerProps $ M.fromList
 
 -- | Creates a new Kafka consumer
 newConsumer :: ConsumerProperties
-            -> Java a (KafkaConsumer JByteArray JByteArray)
+            -> IO KafkaConsumer
 newConsumer props =
   let bsProps = fixedProps <> props
-   in mkRawConsumer (mkConsumerProps bsProps)
+   in java $ KafkaConsumer <$> mkRawConsumer (mkConsumerProps bsProps)
 
 -- | Subscribes an existing kafka consumer to the specified topics
-subscribeTo :: [TopicName] -> Java (KafkaConsumer JByteArray JByteArray) ()
-subscribeTo ts =
-  let rawTopics = toJList $ (\(TopicName t) -> (toJString t)) <$> ts
-   in rawSubscribe rawTopics
+subscribeTo :: KafkaConsumer -> [TopicName] -> IO ()
+subscribeTo (KafkaConsumer kc) ts =
+  let rawTopics = toJava $ (\(TopicName t) -> (toJString t)) <$> ts :: J.List JString
+   in java $ kc <.> rawSubscribe rawTopics
 
-poll :: Timeout -> Java (KafkaConsumer JByteArray JByteArray) [ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)]
-poll (Timeout t) = do
-  res <- consume <$> (rawPoll t >- iterator)
-  return $ mkConsumerRecord <$> res
+closeConsumer :: KafkaConsumer -> IO ()
+closeConsumer (KafkaConsumer kc) = java $ kc <.> rawCloseConsumer
+{-# INLINE closeConsumer #-}
+
+pollConsumer :: KafkaConsumer -> Timeout -> IO [ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)]
+pollConsumer (KafkaConsumer kc) (Timeout t) = do
+  res <- java $ rawPoll t
+  return $ mkConsumerRecord <$> listRecords res
+{-# INLINE pollConsumer #-}
 
 mkConsumerRecord :: JConsumerRecord JByteArray JByteArray -> ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)
 mkConsumerRecord jcr =
@@ -63,6 +68,5 @@ mkConsumerRecord jcr =
   , crValue     = crValue' jcr
   }
 
-mkConsumerProps :: ConsumerProperties -> JMap JString JString
-mkConsumerProps (ConsumerProperties m) =
-  toJMap . M.fromList $ bimap toJString toJString <$> M.toList m
+mkConsumerProps :: ConsumerProperties -> Properties
+mkConsumerProps (ConsumerProperties m) = toJava $ M.toList m

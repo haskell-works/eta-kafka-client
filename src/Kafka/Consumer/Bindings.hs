@@ -1,14 +1,13 @@
-{-# LANGUAGE MagicHash, FlexibleContexts, DataKinds, TypeFamilies #-}
+{-# LANGUAGE MagicHash, FlexibleContexts, DataKinds, TypeFamilies, ScopedTypeVariables #-}
 module Kafka.Consumer.Bindings
 where
 
 import Java
-import Java.Collections
+import Java.Array
+import qualified Java.Collections as J
 import Control.Monad(forM_)
 import Data.Map (Map)
 import qualified Data.Map as M
-
-import Kafka.Internal.Collections
 
 -- TopicPartition
 data {-# CLASS "org.apache.kafka.common.TopicPartition" #-} JTopicPartition =
@@ -39,16 +38,19 @@ foreign import java unsafe "offset" crOffset' :: JConsumerRecord k v -> Int64
 foreign import java unsafe "checksum" crChecksum' :: JConsumerRecord k v -> Int64
 
 -- Consumer
-data {-# CLASS "org.apache.kafka.clients.consumer.KafkaConsumer" #-} KafkaConsumer k v =
-  KafkaConsumer (Object# (KafkaConsumer k v))
+data {-# CLASS "org.apache.kafka.clients.consumer.KafkaConsumer" #-} JKafkaConsumer k v =
+  JKafkaConsumer (Object# (JKafkaConsumer k v))
   deriving Class
 
 
-foreign import java unsafe "@new" mkRawConsumer :: JMap JString JString -> Java a (KafkaConsumer k v)
-foreign import java unsafe "close" closeConsumer :: Java (KafkaConsumer k v) ()
-foreign import java unsafe "subscribe" rawSubscribe :: (Extends b (Collection JString)) => b -> Java (KafkaConsumer k v) ()
-foreign import java unsafe "unsubscribe" unsubscribe2 :: Java (KafkaConsumer k v) ()
-foreign import java unsafe "commitSync" commitSync :: Java (KafkaConsumer k v) ()
-foreign import java unsafe "commitAsync" commitAsync :: Java (KafkaConsumer k v) ()
+foreign import java unsafe "@new" mkRawConsumer :: J.Properties -> Java a (JKafkaConsumer k v)
+foreign import java unsafe "close" rawCloseConsumer :: Java (JKafkaConsumer k v) ()
+foreign import java unsafe "subscribe" rawSubscribe :: (Extends b (Collection JString)) => b -> Java (JKafkaConsumer k v) ()
+foreign import java unsafe "unsubscribe" unsubscribe :: Java (JKafkaConsumer k v) ()
+foreign import java unsafe "commitSync" commitSync :: Java (JKafkaConsumer k v) ()
+foreign import java unsafe "commitAsync" commitAsync :: Java (JKafkaConsumer k v) ()
 
-foreign import java unsafe "poll" rawPoll :: Int64 -> Java (KafkaConsumer k v) (JConsumerRecords k v)
+foreign import java unsafe "poll" rawPoll :: Int64 -> Java (JKafkaConsumer k v) (JConsumerRecords k v)
+
+listRecords :: forall k v. JConsumerRecords k v -> [JConsumerRecord k v]
+listRecords rs = fromJava (superCast rs :: Iterable (JConsumerRecord k v))
