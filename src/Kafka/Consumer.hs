@@ -13,6 +13,7 @@ module Kafka.Consumer
 import Java
 import Java.Collections as J
 
+import Control.Monad.IO.Class
 import Control.Monad(forM_)
 import Data.Bifunctor
 import Data.Map (Map)
@@ -35,33 +36,34 @@ fixedProps = consumerProps $ M.fromList
   ]
 
 -- | Creates a new Kafka consumer
-newConsumer :: ConsumerProperties -> IO KafkaConsumer
+newConsumer :: MonadIO m => ConsumerProperties -> m KafkaConsumer
 newConsumer props =
   let bsProps = fixedProps <> props
-   in KafkaConsumer <$> mkRawConsumer (mkConsumerProps bsProps)
+      cons = mkRawConsumer (mkConsumerProps bsProps)
+   in liftIO $ KafkaConsumer <$> cons
 
 -- | Subscribes an existing kafka consumer to the specified topics
-subscribeTo :: KafkaConsumer -> [TopicName] -> IO ()
+subscribeTo :: MonadIO m => KafkaConsumer -> [TopicName] -> m ()
 subscribeTo (KafkaConsumer kc) ts =
   let rawTopics = toJava $ (\(TopicName t) -> (toJString t)) <$> ts :: J.List JString
-   in rawSubscribe kc rawTopics
+   in liftIO $ rawSubscribe kc rawTopics
 
-poll :: KafkaConsumer -> Timeout -> IO [ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)]
-poll (KafkaConsumer kc) (Timeout t) = do
+poll :: MonadIO m => KafkaConsumer -> Timeout -> m [ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)]
+poll (KafkaConsumer kc) (Timeout t) = liftIO $ do
   res <- listRecords <$> rawPoll kc t
   return $ mkConsumerRecord <$> res
 
-commitSync :: KafkaConsumer -> IO ()
-commitSync (KafkaConsumer kc) = rawCommitSync kc
+commitSync :: MonadIO m => KafkaConsumer -> m ()
+commitSync (KafkaConsumer kc) = liftIO $ rawCommitSync kc
 
-commitAsync :: KafkaConsumer -> IO ()
-commitAsync (KafkaConsumer kc) = rawCommitAsync kc
+commitAsync :: MonadIO m => KafkaConsumer -> m ()
+commitAsync (KafkaConsumer kc) = liftIO $ rawCommitAsync kc
 
-unsubscribe :: KafkaConsumer -> IO ()
-unsubscribe (KafkaConsumer kc) = rawUnsubscribe kc
+unsubscribe :: MonadIO m => KafkaConsumer -> m ()
+unsubscribe (KafkaConsumer kc) = liftIO $ rawUnsubscribe kc
 
-closeConsumer :: KafkaConsumer -> IO ()
-closeConsumer (KafkaConsumer kc) = rawCloseConsumer kc
+closeConsumer :: MonadIO m => KafkaConsumer -> m ()
+closeConsumer (KafkaConsumer kc) = liftIO $ rawCloseConsumer kc
 
 mkConsumerRecord :: JConsumerRecord JByteArray JByteArray -> ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)
 mkConsumerRecord jcr =
