@@ -37,19 +37,19 @@ foreign import java unsafe "offset" crOffset' :: JConsumerRecord k v -> Int64
 foreign import java unsafe "checksum" crChecksum' :: JConsumerRecord k v -> Int64
 
 -- Consumer
-data {-# CLASS "org.apache.kafka.clients.consumer.KafkaConsumer" #-} KafkaConsumer k v =
-  KafkaConsumer (Object# (KafkaConsumer k v))
+data {-# CLASS "org.apache.kafka.clients.consumer.KafkaConsumer" #-} JKafkaConsumer k v =
+  JKafkaConsumer (Object# (JKafkaConsumer k v))
   deriving Class
 
 
-foreign import java unsafe "@new" mkRawConsumer :: J.Map JString JString -> IO (KafkaConsumer k v)
-foreign import java unsafe "close" closeConsumer :: KafkaConsumer k v -> IO ()
-foreign import java unsafe "subscribe" rawSubscribe :: (Extends b (Collection JString)) => KafkaConsumer k v -> b -> IO ()
-foreign import java unsafe "unsubscribe" rawUnsubscribe :: KafkaConsumer k v -> IO ()
-foreign import java unsafe "commitSync" commitSync :: KafkaConsumer k v -> IO ()
-foreign import java unsafe "commitAsync" commitAsync :: KafkaConsumer k v -> IO ()
+foreign import java unsafe "@new" mkRawConsumer :: J.Map JString JString -> IO (JKafkaConsumer k v)
+foreign import java unsafe "close" rawCloseConsumer :: JKafkaConsumer k v -> IO ()
+foreign import java unsafe "subscribe" rawSubscribe :: (Extends b (Collection JString)) => JKafkaConsumer k v -> b -> IO ()
+foreign import java unsafe "unsubscribe" rawUnsubscribe :: JKafkaConsumer k v -> IO ()
+foreign import java unsafe "commitSync" rawCommitSync :: JKafkaConsumer k v -> IO ()
+foreign import java unsafe "commitAsync" rawCommitAsync :: JKafkaConsumer k v -> IO ()
 
-foreign import java unsafe "poll" rawPoll :: KafkaConsumer k v -> Int64 -> IO (JConsumerRecords k v)
+foreign import java unsafe "poll" rawPoll :: JKafkaConsumer k v -> Int64 -> IO (JConsumerRecords k v)
 
 listRecords :: forall k v. JConsumerRecords k v -> [JConsumerRecord k v]
 listRecords rs = fromJava (superCast rs :: Iterable (JConsumerRecord k v))

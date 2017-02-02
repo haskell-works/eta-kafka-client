@@ -4,7 +4,7 @@ module Kafka.Consumer
 , KafkaConsumer
 , newConsumer
 , closeConsumer
-, subscribeTo
+, subscribeTo, unsubscribe
 , commitSync, commitAsync
 , poll
 ) where
@@ -26,6 +26,7 @@ import Kafka.Types as X
 import Kafka.Consumer.Types as X
 import Kafka.Consumer.ConsumerProperties as X
 
+newtype KafkaConsumer = KafkaConsumer (JKafkaConsumer JByteArray JByteArray)
 
 fixedProps :: ConsumerProperties
 fixedProps = consumerProps $ M.fromList
@@ -34,22 +35,33 @@ fixedProps = consumerProps $ M.fromList
   ]
 
 -- | Creates a new Kafka consumer
-newConsumer :: ConsumerProperties
-            -> IO (KafkaConsumer JByteArray JByteArray)
+newConsumer :: ConsumerProperties -> IO KafkaConsumer
 newConsumer props =
   let bsProps = fixedProps <> props
-   in mkRawConsumer (mkConsumerProps bsProps)
+   in KafkaConsumer <$> mkRawConsumer (mkConsumerProps bsProps)
 
 -- | Subscribes an existing kafka consumer to the specified topics
-subscribeTo :: KafkaConsumer JByteArray JByteArray -> [TopicName] -> IO ()
-subscribeTo kc ts =
+subscribeTo :: KafkaConsumer -> [TopicName] -> IO ()
+subscribeTo (KafkaConsumer kc) ts =
   let rawTopics = toJava $ (\(TopicName t) -> (toJString t)) <$> ts :: J.List JString
    in rawSubscribe kc rawTopics
 
-poll :: KafkaConsumer JByteArray JByteArray -> Timeout -> IO [ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)]
-poll kc (Timeout t) = do
+poll :: KafkaConsumer -> Timeout -> IO [ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)]
+poll (KafkaConsumer kc) (Timeout t) = do
   res <- listRecords <$> rawPoll kc t
   return $ mkConsumerRecord <$> res
+
+commitSync :: KafkaConsumer -> IO ()
+commitSync (KafkaConsumer kc) = rawCommitSync kc
+
+commitAsync :: KafkaConsumer -> IO ()
+commitAsync (KafkaConsumer kc) = rawCommitAsync kc
+
+unsubscribe :: KafkaConsumer -> IO ()
+unsubscribe (KafkaConsumer kc) = rawUnsubscribe kc
+
+closeConsumer :: KafkaConsumer -> IO ()
+closeConsumer (KafkaConsumer kc) = rawCloseConsumer kc
 
 mkConsumerRecord :: JConsumerRecord JByteArray JByteArray -> ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)
 mkConsumerRecord jcr =
