@@ -8,6 +8,7 @@ import qualified Java.Collections as J
 import Control.Monad(forM_)
 import Data.Map (Map)
 import qualified Data.Map as M
+import Kafka.Consumer.Types
 
 -- TopicPartition
 data {-# CLASS "org.apache.kafka.common.TopicPartition" #-} JTopicPartition =
@@ -17,6 +18,15 @@ data {-# CLASS "org.apache.kafka.common.TopicPartition" #-} JTopicPartition =
 foreign import java unsafe "@new" newTopicPartition :: JString -> Int -> JTopicPartition
 foreign import java unsafe "topic" tpTopic :: JTopicPartition -> JString
 foreign import java unsafe "partition" tpPartition :: JTopicPartition -> Int
+
+-- OffsetAndMetadata
+data {-# CLASS "org.apache.kafka.clients.consumer.OffsetAndMetadata" #-} JOffsetAndMetadata =
+  JOffsetAndMetadata (Object# JOffsetAndMetadata)
+  deriving (Class, Show)
+
+foreign import java unsafe "@new" mkOffsetAndMetadata :: Int64 -> Java a JOffsetAndMetadata
+foreign import java unsafe "offset" omOffset' :: JOffsetAndMetadata -> Int64
+
 
 -- JConsumerRecords
 data {-# CLASS "org.apache.kafka.clients.consumer.ConsumerRecords" #-} JConsumerRecords k v =
@@ -43,12 +53,12 @@ data {-# CLASS "org.apache.kafka.clients.consumer.KafkaConsumer" #-} JKafkaConsu
   deriving Class
 
 
-foreign import java unsafe "@new" mkRawConsumer :: J.Properties -> Java a (JKafkaConsumer k v)
+foreign import java unsafe "@new" mkRawConsumer :: J.Map JString JString -> Java a (JKafkaConsumer k v)
 foreign import java unsafe "close" rawCloseConsumer :: Java (JKafkaConsumer k v) ()
 foreign import java unsafe "subscribe" rawSubscribe :: (Extends b (Collection JString)) => b -> Java (JKafkaConsumer k v) ()
-foreign import java unsafe "unsubscribe" unsubscribe :: Java (JKafkaConsumer k v) ()
-foreign import java unsafe "commitSync" commitSync :: Java (JKafkaConsumer k v) ()
-foreign import java unsafe "commitAsync" commitAsync :: Java (JKafkaConsumer k v) ()
+foreign import java unsafe "unsubscribe" rawUnsubscribe :: Java (JKafkaConsumer k v) ()
+foreign import java unsafe "commitSync" rawCommitSync :: Java (JKafkaConsumer k v) ()
+foreign import java unsafe "commitAsync" rawCommitAsync :: Java (JKafkaConsumer k v) ()
 
 foreign import java unsafe "poll" rawPoll :: Int64 -> Java (JKafkaConsumer k v) (JConsumerRecords k v)
 

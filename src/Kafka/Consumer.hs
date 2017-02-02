@@ -35,8 +35,7 @@ fixedProps = consumerProps $ M.fromList
   ]
 
 -- | Creates a new Kafka consumer
-newConsumer :: ConsumerProperties
-            -> IO KafkaConsumer
+newConsumer :: ConsumerProperties -> IO KafkaConsumer
 newConsumer props =
   let bsProps = fixedProps <> props
    in java $ KafkaConsumer <$> mkRawConsumer (mkConsumerProps bsProps)
@@ -46,6 +45,9 @@ subscribeTo :: KafkaConsumer -> [TopicName] -> IO ()
 subscribeTo (KafkaConsumer kc) ts =
   let rawTopics = toJava $ (\(TopicName t) -> (toJString t)) <$> ts :: J.List JString
    in java $ kc <.> rawSubscribe rawTopics
+
+unsubscribe :: KafkaConsumer -> IO ()
+unsubscribe (KafkaConsumer kc) = java $ kc <.> rawUnsubscribe
 
 closeConsumer :: KafkaConsumer -> IO ()
 closeConsumer (KafkaConsumer kc) = java $ kc <.> rawCloseConsumer
@@ -57,6 +59,14 @@ pollConsumer (KafkaConsumer kc) (Timeout t) = do
   return $ mkConsumerRecord <$> listRecords res
 {-# INLINE pollConsumer #-}
 
+commitSync :: KafkaConsumer -> IO ()
+commitSync (KafkaConsumer kc) = java $ kc <.> rawCommitSync
+{-# INLINE commitSync #-}
+
+commitAsync :: KafkaConsumer -> IO ()
+commitAsync (KafkaConsumer kc) = java $ kc <.> rawCommitAsync
+{-# INLINE commitAsync #-}
+
 mkConsumerRecord :: JConsumerRecord JByteArray JByteArray -> ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)
 mkConsumerRecord jcr =
   ConsumerRecord
@@ -67,6 +77,8 @@ mkConsumerRecord jcr =
   , crKey       = crKey' jcr
   , crValue     = crValue' jcr
   }
+{-# INLINE mkConsumerRecord #-}
 
-mkConsumerProps :: ConsumerProperties -> Properties
-mkConsumerProps (ConsumerProperties m) = toJava $ M.toList m
+mkConsumerProps :: ConsumerProperties -> J.Map JString JString
+mkConsumerProps (ConsumerProperties m) =
+  toJava $ bimap toJString toJString <$> M.toList m
