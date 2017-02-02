@@ -27,11 +27,11 @@ foreign import java unsafe "@new" newJProducerRecord ::
  (Extends k Object, Extends v Object) => JString -> Maybe JInteger -> Maybe JLong -> Maybe k -> Maybe v -> JProducerRecord k v
 
 -- Producer
-data {-# CLASS "org.apache.kafka.clients.producer.KafkaProducer" #-} KafkaProducer k v =
-  KafkaProducer (Object# (KafkaProducer k v))
+data {-# CLASS "org.apache.kafka.clients.producer.KafkaProducer" #-} JKafkaProducer k v =
+  JKafkaProducer (Object# (JKafkaProducer k v))
   deriving Class
 
-foreign import java unsafe "@new" mkRawProducer :: J.Map JString JString -> IO (KafkaProducer k v)
-foreign import java unsafe "close" destroyProducer :: KafkaProducer k v -> IO ()
-foreign import java unsafe "flush" flushProducer :: KafkaProducer k v -> IO ()
-foreign import java unsafe "send" rawSend :: KafkaProducer k v -> JProducerRecord k v -> IO (JFuture JRecordMetadata)
+foreign import java unsafe "@new" mkRawProducer :: J.Map JString JString -> IO (JKafkaProducer k v)
+foreign import java unsafe "close" destroyProducer :: JKafkaProducer k v -> IO ()
+foreign import java unsafe "flush" flushProducer :: JKafkaProducer k v -> IO ()
+foreign import java unsafe "send" rawSend :: JKafkaProducer k v -> JProducerRecord k v -> IO (JFuture JRecordMetadata)

@@ -22,6 +22,7 @@ import Kafka.Types as X
 import Kafka.Producer.Types as X
 import Kafka.Producer.ProducerProperties as X
 
+newtype KafkaProducer = KafkaProducer (JKafkaProducer JByteArray JByteArray)
 
 fixedProps :: ProducerProperties
 fixedProps = producerProps $ M.fromList
@@ -29,13 +30,13 @@ fixedProps = producerProps $ M.fromList
   , ("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer")
   ]
 
-newProducer :: ProducerProperties -> IO (KafkaProducer JByteArray JByteArray)
+newProducer :: ProducerProperties -> IO KafkaProducer
 newProducer props =
   let bsProps = fixedProps <> props
-   in mkRawProducer (mkProducerProps bsProps)
+   in KafkaProducer <$> mkRawProducer (mkProducerProps bsProps)
 
-send :: KafkaProducer JByteArray JByteArray -> ProducerRecord JByteArray JByteArray -> IO (JFuture JRecordMetadata)
-send kp r = rawSend kp (mkJProducerRecord r)
+send :: KafkaProducer -> ProducerRecord JByteArray JByteArray -> IO (JFuture JRecordMetadata)
+send (KafkaProducer kp) r = rawSend kp (mkJProducerRecord r)
 
 mkJProducerRecord :: (Class k, Class v) => ProducerRecord k v -> JProducerRecord k v
 mkJProducerRecord (ProducerRecord t p k v) =
@@ -43,8 +44,8 @@ mkJProducerRecord (ProducerRecord t p k v) =
       p' = (\(PartitionId x) -> x) <$> p
    in newJProducerRecord (toJString t') (toJava <$> p') Nothing k v
 
-closeProducer :: KafkaProducer k v -> IO ()
-closeProducer kp = flushProducer kp >> destroyProducer kp
+closeProducer :: KafkaProducer -> IO ()
+closeProducer (KafkaProducer kp) = flushProducer kp >> destroyProducer kp
 
 mkProducerProps :: ProducerProperties -> J.Map JString JString
 mkProducerProps (ProducerProperties m) =
