@@ -9,14 +9,13 @@ module Kafka.Producer
 ) where
 
 import Java
-import Java.Collections
+import Java.Collections as J
 
 import Data.Bifunctor
 import Data.Map (Map)
 import qualified Data.Map as M
 import Data.Monoid
 
-import Kafka.Internal.Collections
 import Kafka.Producer.Bindings
 
 import Kafka.Types as X
@@ -42,11 +41,11 @@ mkJProducerRecord :: (Class k, Class v) => ProducerRecord k v -> JProducerRecord
 mkJProducerRecord (ProducerRecord t p k v) =
   let TopicName t' = t
       p' = (\(PartitionId x) -> x) <$> p
-   in newJProducerRecord (toJString t') (intToJInteger <$> p') Nothing k v
+   in newJProducerRecord (toJString t') (toJava <$> p') Nothing k v
 
 closeProducer :: Java (KafkaProducer k v) ()
 closeProducer = flushProducer >> destroyProducer
 
-mkProducerProps :: ProducerProperties -> JMap JString JString
+mkProducerProps :: ProducerProperties -> J.Map JString JString
 mkProducerProps (ProducerProperties m) =
-  toJMap . M.fromList $ bimap toJString toJString <$> M.toList m
+  toJava $ bimap toJString toJString <$> M.toList m

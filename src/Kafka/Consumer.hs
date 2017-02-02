@@ -11,7 +11,7 @@ module Kafka.Consumer
 
 --
 import Java
-import Java.Collections
+import Java.Collections as J
 
 import Control.Monad(forM_)
 import Data.Bifunctor
@@ -21,7 +21,6 @@ import Data.Monoid
 import Data.String
 
 import Kafka.Consumer.Bindings
-import Kafka.Internal.Collections
 
 import Kafka.Types as X
 import Kafka.Consumer.Types as X
@@ -44,12 +43,12 @@ newConsumer props =
 -- | Subscribes an existing kafka consumer to the specified topics
 subscribeTo :: [TopicName] -> Java (KafkaConsumer JByteArray JByteArray) ()
 subscribeTo ts =
-  let rawTopics = toJList $ (\(TopicName t) -> (toJString t)) <$> ts
+  let rawTopics = toJava $ (\(TopicName t) -> (toJString t)) <$> ts :: J.List JString
    in rawSubscribe rawTopics
 
 poll :: Timeout -> Java (KafkaConsumer JByteArray JByteArray) [ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)]
 poll (Timeout t) = do
-  res <- consume <$> (rawPoll t >- iterator)
+  res <- listRecords <$> (rawPoll t)
   return $ mkConsumerRecord <$> res
 
 mkConsumerRecord :: JConsumerRecord JByteArray JByteArray -> ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)
@@ -63,6 +62,6 @@ mkConsumerRecord jcr =
   , crValue     = crValue' jcr
   }
 
-mkConsumerProps :: ConsumerProperties -> JMap JString JString
+mkConsumerProps :: ConsumerProperties -> J.Map JString JString
 mkConsumerProps (ConsumerProperties m) =
-  toJMap . M.fromList $ bimap toJString toJString <$> M.toList m
+  toJava $ bimap toJString toJString <$> M.toList m

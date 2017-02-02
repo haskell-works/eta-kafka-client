@@ -1,14 +1,12 @@
-{-# LANGUAGE MagicHash, FlexibleContexts, DataKinds, TypeFamilies #-}
+{-# LANGUAGE MagicHash, FlexibleContexts, DataKinds, TypeFamilies, ScopedTypeVariables #-}
 module Kafka.Consumer.Bindings
 where
 
 import Java
-import Java.Collections
+import Java.Collections as J
 import Control.Monad(forM_)
 import Data.Map (Map)
 import qualified Data.Map as M
-
-import Kafka.Internal.Collections
 
 -- TopicPartition
 data {-# CLASS "org.apache.kafka.common.TopicPartition" #-} JTopicPartition =
@@ -44,7 +42,7 @@ data {-# CLASS "org.apache.kafka.clients.consumer.KafkaConsumer" #-} KafkaConsum
   deriving Class
 
 
-foreign import java unsafe "@new" mkRawConsumer :: JMap JString JString -> Java a (KafkaConsumer k v)
+foreign import java unsafe "@new" mkRawConsumer :: J.Map JString JString -> Java a (KafkaConsumer k v)
 foreign import java unsafe "close" closeConsumer :: Java (KafkaConsumer k v) ()
 foreign import java unsafe "subscribe" rawSubscribe :: (Extends b (Collection JString)) => b -> Java (KafkaConsumer k v) ()
 foreign import java unsafe "unsubscribe" unsubscribe2 :: Java (KafkaConsumer k v) ()
@@ -52,3 +50,6 @@ foreign import java unsafe "commitSync" commitSync :: Java (KafkaConsumer k v) (
 foreign import java unsafe "commitAsync" commitAsync :: Java (KafkaConsumer k v) ()
 
 foreign import java unsafe "poll" rawPoll :: Int64 -> Java (KafkaConsumer k v) (JConsumerRecords k v)
+
+listRecords :: forall k v. JConsumerRecords k v -> [JConsumerRecord k v]
+listRecords rs = fromJava (superCast rs :: Iterable (JConsumerRecord k v))
