@@ -47,10 +47,11 @@ runProducer t msgs = java $ do
 
 
 runConsumer :: TopicName -> IO [JByteArray]
-runConsumer t = java $ do
+runConsumer t = do
   cons <- newConsumer consumerConf
-  cons <.> subscribeTo [t]
-  msgs <- cons <.> poll (Timeout 1000)
+  subscribeTo cons [t]
+  msgs <- poll cons (Timeout 3000)
+  closeConsumer cons
   return $ msgs >>= maybeToList . crValue
 
 -- helpers

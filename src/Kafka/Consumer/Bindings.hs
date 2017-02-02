@@ -42,14 +42,14 @@ data {-# CLASS "org.apache.kafka.clients.consumer.KafkaConsumer" #-} KafkaConsum
   deriving Class
 
 
-foreign import java unsafe "@new" mkRawConsumer :: J.Map JString JString -> Java a (KafkaConsumer k v)
-foreign import java unsafe "close" closeConsumer :: Java (KafkaConsumer k v) ()
-foreign import java unsafe "subscribe" rawSubscribe :: (Extends b (Collection JString)) => b -> Java (KafkaConsumer k v) ()
-foreign import java unsafe "unsubscribe" unsubscribe2 :: Java (KafkaConsumer k v) ()
-foreign import java unsafe "commitSync" commitSync :: Java (KafkaConsumer k v) ()
-foreign import java unsafe "commitAsync" commitAsync :: Java (KafkaConsumer k v) ()
+foreign import java unsafe "@new" mkRawConsumer :: J.Map JString JString -> IO (KafkaConsumer k v)
+foreign import java unsafe "close" closeConsumer :: KafkaConsumer k v -> IO ()
+foreign import java unsafe "subscribe" rawSubscribe :: (Extends b (Collection JString)) => KafkaConsumer k v -> b -> IO ()
+foreign import java unsafe "unsubscribe" rawUnsubscribe :: KafkaConsumer k v -> IO ()
+foreign import java unsafe "commitSync" commitSync :: KafkaConsumer k v -> IO ()
+foreign import java unsafe "commitAsync" commitAsync :: KafkaConsumer k v -> IO ()
 
-foreign import java unsafe "poll" rawPoll :: Int64 -> Java (KafkaConsumer k v) (JConsumerRecords k v)
+foreign import java unsafe "poll" rawPoll :: KafkaConsumer k v -> Int64 -> IO (JConsumerRecords k v)
 
 listRecords :: forall k v. JConsumerRecords k v -> [JConsumerRecord k v]
 listRecords rs = fromJava (superCast rs :: Iterable (JConsumerRecord k v))

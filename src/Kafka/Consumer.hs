@@ -35,20 +35,20 @@ fixedProps = consumerProps $ M.fromList
 
 -- | Creates a new Kafka consumer
 newConsumer :: ConsumerProperties
-            -> Java a (KafkaConsumer JByteArray JByteArray)
+            -> IO (KafkaConsumer JByteArray JByteArray)
 newConsumer props =
   let bsProps = fixedProps <> props
    in mkRawConsumer (mkConsumerProps bsProps)
 
 -- | Subscribes an existing kafka consumer to the specified topics
-subscribeTo :: [TopicName] -> Java (KafkaConsumer JByteArray JByteArray) ()
-subscribeTo ts =
+subscribeTo :: KafkaConsumer JByteArray JByteArray -> [TopicName] -> IO ()
+subscribeTo kc ts =
   let rawTopics = toJava $ (\(TopicName t) -> (toJString t)) <$> ts :: J.List JString
-   in rawSubscribe rawTopics
+   in rawSubscribe kc rawTopics
 
-poll :: Timeout -> Java (KafkaConsumer JByteArray JByteArray) [ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)]
-poll (Timeout t) = do
-  res <- listRecords <$> (rawPoll t)
+poll :: KafkaConsumer JByteArray JByteArray -> Timeout -> IO [ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)]
+poll kc (Timeout t) = do
+  res <- listRecords <$> rawPoll kc t
   return $ mkConsumerRecord <$> res
 
 mkConsumerRecord :: JConsumerRecord JByteArray JByteArray -> ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)
