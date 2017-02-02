@@ -31,7 +31,7 @@ data {-# CLASS "org.apache.kafka.clients.producer.KafkaProducer" #-} KafkaProduc
   KafkaProducer (Object# (KafkaProducer k v))
   deriving Class
 
-foreign import java unsafe "@new" mkRawProducer :: J.Map JString JString -> Java a (KafkaProducer k v)
-foreign import java unsafe "close" destroyProducer :: Java (KafkaProducer k v) ()
-foreign import java unsafe "flush" flushProducer :: Java (KafkaProducer k v) ()
-foreign import java unsafe "send" rawSend :: JProducerRecord k v -> Java (KafkaProducer k v) (JFuture JRecordMetadata)
+foreign import java unsafe "@new" mkRawProducer :: J.Map JString JString -> IO (KafkaProducer k v)
+foreign import java unsafe "close" destroyProducer :: KafkaProducer k v -> IO ()
+foreign import java unsafe "flush" flushProducer :: KafkaProducer k v -> IO ()
+foreign import java unsafe "send" rawSend :: KafkaProducer k v -> JProducerRecord k v -> IO (JFuture JRecordMetadata)

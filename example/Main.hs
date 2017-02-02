@@ -35,11 +35,11 @@ main = do
   print "Ok."
 
 runProducer :: TopicName -> [String] -> IO ()
-runProducer t msgs = java $ do
+runProducer t msgs = do
   prod <- newProducer producerConf
   let items = mkProdRecord t <$> msgs
-  forM_ items (\x -> prod <.> send x)
-  prod <.> closeProducer
+  forM_ items (\x ->  send prod x)
+  closeProducer prod
   where
     mkProdRecord t v =
       let bytes = stringBytes v
