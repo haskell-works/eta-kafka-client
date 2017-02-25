@@ -50,7 +50,7 @@ runConsumer :: TopicName -> IO [JByteArray]
 runConsumer t = do
   cons <- newConsumer consumerConf
   subscribeTo cons [t]
-  msgs <- poll cons (Timeout 3000)
+  msgs <- poll cons (Millis 3000)
   closeConsumer cons
   return $ msgs >>= maybeToList . crValue
 

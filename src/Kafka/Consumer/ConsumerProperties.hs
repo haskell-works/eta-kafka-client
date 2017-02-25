@@ -9,15 +9,10 @@ import Kafka.Types
 import qualified Data.Map as M
 import qualified Data.List as L
 import Data.Monoid
-
-newtype Millis      = Millis Int deriving (Show, Eq, Ord, Num)
-newtype ClientId    = ClientId String deriving (Show, Eq, Ord)
-data OffsetReset    = Earliest | Latest deriving (Show, Eq)
+import Kafka.Consumer.Types
 
 newtype ConsumerProperties = ConsumerProperties (Map String String)
   deriving (Show)
-
-newtype ConsumerGroupId = ConsumerGroupId String deriving (Show, Eq, Ord)
 
 instance Monoid ConsumerProperties where
   mempty = ConsumerProperties M.empty

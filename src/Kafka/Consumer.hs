@@ -48,8 +48,8 @@ subscribeTo (KafkaConsumer kc) ts =
   let rawTopics = toJava $ (\(TopicName t) -> (toJString t)) <$> ts :: J.List JString
    in liftIO $ rawSubscribe kc rawTopics
 
-poll :: MonadIO m => KafkaConsumer -> Timeout -> m [ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)]
-poll (KafkaConsumer kc) (Timeout t) = liftIO $ do
+poll :: MonadIO m => KafkaConsumer -> Millis -> m [ConsumerRecord (Maybe JByteArray) (Maybe JByteArray)]
+poll (KafkaConsumer kc) (Millis t) = liftIO $ do
   res <- listRecords <$> rawPoll kc t
   return $ mkConsumerRecord <$> res
 
