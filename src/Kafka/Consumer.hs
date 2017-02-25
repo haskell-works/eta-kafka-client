@@ -30,7 +30,7 @@ import Kafka.Consumer.ConsumerProperties as X
 newtype KafkaConsumer = KafkaConsumer (JKafkaConsumer JByteArray JByteArray)
 
 fixedProps :: ConsumerProperties
-fixedProps = consumerProps $ M.fromList
+fixedProps = extraConsumerProps $ M.fromList
   [ ("key.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer")
   , ("value.deserializer", "org.apache.kafka.common.serialization.ByteArrayDeserializer")
   ]

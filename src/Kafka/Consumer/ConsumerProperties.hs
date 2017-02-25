@@ -49,5 +49,5 @@ clientId :: ClientId -> ConsumerProperties
 clientId (ClientId cid) =
   ConsumerProperties $ M.fromList [("client.id", cid)]
 
-consumerProps :: Map String String -> ConsumerProperties
-consumerProps = ConsumerProperties
+extraConsumerProps :: Map String String -> ConsumerProperties
+extraConsumerProps = ConsumerProperties

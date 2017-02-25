@@ -26,7 +26,7 @@ import Kafka.Producer.ProducerProperties as X
 newtype KafkaProducer = KafkaProducer (JKafkaProducer JByteArray JByteArray)
 
 fixedProps :: ProducerProperties
-fixedProps = producerProps $ M.fromList
+fixedProps = extraProducerProps $ M.fromList
   [ ("key.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer")
   , ("value.serializer", "org.apache.kafka.common.serialization.ByteArraySerializer")
   ]

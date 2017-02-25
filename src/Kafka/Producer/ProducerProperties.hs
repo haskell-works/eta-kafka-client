@@ -21,5 +21,5 @@ producerBrokersList bs =
   let bs' = L.intercalate "," ((\(BrokerAddress x) -> x) <$> bs)
    in ProducerProperties $ M.fromList [("bootstrap.servers", bs')]
 
-producerProps :: Map String String -> ProducerProperties
-producerProps = ProducerProperties
+extraProducerProps :: Map String String -> ProducerProperties
+extraProducerProps = ProducerProperties
