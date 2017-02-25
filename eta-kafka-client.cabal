@@ -44,7 +44,8 @@ executable kafka-client-example
   maven-repos:         http://packages.confluent.io/maven/
 
 library
-  exposed-modules:     Kafka.Consumer
+  exposed-modules:     Kafka
+                     , Kafka.Consumer
                      , Kafka.Producer
                      , Kafka.Types
                      , Kafka.Consumer.Types
