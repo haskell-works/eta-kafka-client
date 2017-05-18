@@ -8,20 +8,20 @@ module Kafka.Producer
 , mkJProducerRecord
 ) where
 
-import Java
-import Java.Collections as J
+import           Java
+import           Java.Collections                  as J
 
-import Control.Monad.IO.Class
-import Data.Bifunctor
-import Data.Map (Map)
-import qualified Data.Map as M
-import Data.Monoid
+import           Control.Monad.IO.Class
+import           Data.Bifunctor
+import           Data.Map                          (Map)
+import qualified Data.Map                          as M
+import           Data.Monoid
 
-import Kafka.Producer.Bindings
+import           Kafka.Producer.Bindings
 
-import Kafka.Types as X
-import Kafka.Producer.Types as X
-import Kafka.Producer.ProducerProperties as X
+import           Kafka.Producer.ProducerProperties as X
+import           Kafka.Producer.Types              as X
+import           Kafka.Types                       as X
 
 newtype KafkaProducer = KafkaProducer (JKafkaProducer JByteArray JByteArray)
 
