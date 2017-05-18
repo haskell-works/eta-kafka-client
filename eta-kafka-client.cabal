@@ -26,7 +26,7 @@ description:         Kafka bingings for Eta (http://eta-lang.org/)
 
 source-repository head
   type:     git
-  location: git@github.com:haskell-works/eta-kafka-client.git
+  location: https://github.com/haskell-works/eta-kafka-client
   tag: 0.5.0
 
 executable kafka-client-example
