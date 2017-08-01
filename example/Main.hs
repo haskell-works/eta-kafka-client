@@ -1,11 +1,10 @@
 {-# LANGUAGE MagicHash, BangPatterns, FlexibleContexts, DataKinds, TypeFamilies, OverloadedStrings, ScopedTypeVariables #-}
 module Main where
 
-import Java
-import Java.String
 import GHC.Base
 
 import Control.Monad(forM_)
+import Data.ByteString
 import Data.Monoid
 import Data.Maybe (maybeToList)
 
@@ -31,22 +30,20 @@ main = do
   print "Running consumer..."
   received <- runConsumer testTopic
 
-  forM_ received (print . bytesToJString)
+  forM_ received print
   print "Ok."
 
-runProducer :: TopicName -> [String] -> IO ()
+runProducer :: TopicName -> [ByteString] -> IO ()
 runProducer t msgs = do
   prod <- newProducer producerConf
   let items = mkProdRecord t <$> msgs
-  forM_ items (\x ->  send prod x)
+  forM_ items (send prod)
   closeProducer prod
   where
-    mkProdRecord t v =
-      let bytes = stringBytes v
-       in ProducerRecord t Nothing (Just bytes) (Just bytes)
+    mkProdRecord t v = ProducerRecord t Nothing (Just v) (Just v)
 
 
-runConsumer :: TopicName -> IO [JByteArray]
+runConsumer :: TopicName -> IO [ByteString]
 runConsumer t = do
   cons <- newConsumer consumerConf
   subscribeTo cons [t]
@@ -54,9 +51,3 @@ runConsumer t = do
   closeConsumer cons
   return $ msgs >>= maybeToList . crValue
 
--- helpers
-stringBytes :: String -> JByteArray
-stringBytes s = JByteArray (getBytesUtf8# js)
-  where !(JS# js) = toJString s
-
-foreign import java unsafe "@new" bytesToJString :: JByteArray -> JString

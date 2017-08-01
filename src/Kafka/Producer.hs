@@ -13,6 +13,7 @@ import           Java.Collections                  as J
 
 import           Control.Monad.IO.Class
 import           Data.Bifunctor
+import           Data.ByteString                   as BS
 import           Data.Map                          (Map)
 import qualified Data.Map                          as M
 import           Data.Monoid
@@ -41,15 +42,17 @@ newProducer props =
 
 send :: MonadIO m
      => KafkaProducer
-     -> ProducerRecord JByteArray JByteArray
+     -> ProducerRecord
      -> m (JFuture JRecordMetadata)
 send (KafkaProducer kp) r = liftIO $ rawSend kp (mkJProducerRecord r)
 
-mkJProducerRecord :: (Class k, Class v) => ProducerRecord k v -> JProducerRecord k v
+mkJProducerRecord :: ProducerRecord -> JProducerRecord JByteArray JByteArray
 mkJProducerRecord (ProducerRecord t p k v) =
   let TopicName t' = t
       p' = (\(PartitionId x) -> x) <$> p
-   in newJProducerRecord (toJString t') (toJava <$> p') Nothing k v
+      k' = toJava . BS.unpack <$> k
+      v' = toJava . BS.unpack <$> v
+   in newJProducerRecord (toJString t') (toJava <$> p') Nothing k' v'
 
 closeProducer :: MonadIO m => KafkaProducer -> m ()
 closeProducer (KafkaProducer kp) = liftIO $ flushProducer kp >> destroyProducer kp
