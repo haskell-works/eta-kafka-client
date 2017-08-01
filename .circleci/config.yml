@@ -1,0 +1,47 @@
+version: 2.0
+jobs:
+  build:
+    working_directory: ~/eta-kafka-client
+    docker:
+      - image: typelead/eta:latest
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - dot-eta-{{ checksum "eta-kafka-client.cabal" }}
+            - dot-eta
+
+      - restore_cache:
+          keys:
+            - dist-{{ checksum "eta-kafka-client.cabal" }}
+            - dist
+
+      - run: etlas update
+      - run: etlas install --dependencies-only
+      - run: etlas build
+
+      - save_cache:
+          key: dot-eta
+          paths:
+            - ~/.eta
+            - ~/.etlas
+            - ~/.coursier
+
+      - save_cache:
+          key: dot-eta-{{ checksum "eta-kafka-client.cabal" }}
+          paths:
+            - ~/.eta
+            - ~/.etlas
+            - ~/.coursier
+
+      - save_cache:
+          key: dist
+          paths:
+            - ./dist
+
+      - save_cache:
+          key: dist-{{ checksum "eta-kafka-client.cabal" }}
+          paths:
+            - ./dist
