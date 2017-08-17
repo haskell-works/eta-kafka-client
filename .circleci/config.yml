@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/eta-kafka-client
     docker:
-      - image: typelead/eta:latest
+      - image: alexeyraga/eta:openjdk
 
     steps:
       - checkout
